@@ -1,0 +1,732 @@
+// Delirium policy microsite
+// NHS design system (nhsuk-frontend) as the component foundation, with a small
+// layer of app styles for the task-first layout, pathways and the bottom bar.
+
+@use "nhsuk-frontend/dist/nhsuk/index" as nhsuk with (
+  $nhsuk-template-background-colour: #ffffff,
+  $nhsuk-body-background-colour: #ffffff
+);
+
+// Tokens ---------------------------------------------------------------------
+$app-amber: #ffb81c; // NHS warm yellow – caution / draft status
+$app-red: #d5281b; // NHS red – stop / escalation
+$app-blue: #005eb8; // NHS blue – navigation
+$app-grey-3: #aeb7bd;
+$app-grey-4: #d8dde0;
+$app-grey-5: #f0f4f5;
+$app-bar-height: 60px;
+$app-rail-width: 260px;
+
+// Base -----------------------------------------------------------------------
+html {
+  scroll-padding-top: 16px;
+  scroll-padding-bottom: calc(#{$app-bar-height} + 24px);
+}
+
+body {
+  background-color: #ffffff;
+}
+
+// Larger clinical body text on phones (18px / 1.5) without touching headings.
+@include nhsuk.nhsuk-media-query($until: tablet) {
+  .app-content p,
+  .app-content li,
+  .app-content dt,
+  .app-content dd,
+  .app-content td,
+  .app-content th,
+  .app-content label,
+  .app-content summary,
+  .app-content .nhsuk-list,
+  .app-content .nhsuk-summary-list,
+  .app-content .nhsuk-table,
+  .app-content .nhsuk-details__summary-text,
+  .app-content .nhsuk-inset-text,
+  .app-content .nhsuk-card__description,
+  .app-content .nhsuk-action-link__text,
+  .app-content .nhsuk-button {
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+
+  .app-content .nhsuk-body-s,
+  .app-content .nhsuk-table__heading,
+  .app-content .nhsuk-caption-l,
+  .app-content .app-nav-row__description,
+  .app-content .app-source li {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
+// Space for the fixed bottom bar and the phone safe area
+@include nhsuk.nhsuk-media-query($until: desktop) {
+  body {
+    padding-bottom: calc(#{$app-bar-height} + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+// Header ---------------------------------------------------------------------
+// White organisational header with the Trust's NHS lock-up as the logo.
+.app-header {
+  border-bottom: 1px solid $app-grey-4;
+
+  .nhsuk-header__organisation-logo {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+  }
+
+  .app-header__service-name {
+    display: block;
+  }
+
+  .app-header__service-descriptor {
+    display: none; // keep the phone header compact
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #4c6272;
+
+    @include nhsuk.nhsuk-media-query($from: tablet) {
+      display: block;
+    }
+  }
+}
+
+// Desktop navigation only – the bottom bar covers phones and tablets.
+@include nhsuk.nhsuk-media-query($until: desktop) {
+  .app-header__nav {
+    display: none;
+  }
+}
+
+// Draft status strip (every page, prints) ------------------------------------
+.app-status {
+  background-color: $app-amber;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  color: #212b32;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+
+  .app-status__text {
+    margin: 0;
+    padding: 8px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .app-status__tag {
+    background-color: #212b32;
+    border-color: #212b32;
+    color: #ffffff;
+    margin-right: 4px;
+  }
+
+  .app-status__label {
+    font-weight: 700;
+  }
+}
+
+.app-to-confirm {
+  background-color: $app-amber;
+  color: #212b32;
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+// Footer brand mark ------------------------------------------------------------
+.app-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.app-footer__mark {
+  width: 60px;
+  height: auto;
+  flex: none;
+}
+
+.app-footer__trust {
+  margin: 0;
+  font-weight: 700;
+}
+
+// Layout: single column on phones; contents rail on the left on desktop ------
+.app-main {
+  padding-top: 24px;
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 32px;
+}
+
+.app-content {
+  min-width: 0;
+  max-width: 44em;
+}
+
+.app-rail {
+  order: 1; // after the content on small screens
+  border-top: 1px solid $app-grey-4;
+  padding-top: 16px;
+
+  .nhsuk-contents-list {
+    margin-bottom: 16px;
+  }
+}
+
+.app-rail__heading {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+@include nhsuk.nhsuk-media-query($from: desktop) {
+  .app-layout {
+    grid-template-columns: $app-rail-width minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  .app-rail {
+    order: 0;
+    border-top: 0;
+    padding-top: 0;
+    position: sticky;
+    top: 16px;
+    align-self: start;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+}
+
+// Hub -------------------------------------------------------------------------
+.app-hub__title {
+  margin-bottom: 16px;
+}
+
+.app-hub__lead {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.app-hub__source {
+  margin-bottom: 0;
+}
+
+.app-task-buttons {
+  margin: 8px 0 24px;
+}
+
+.app-task-button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  min-height: 56px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  font-weight: 700;
+
+  .nhsuk-icon {
+    width: 24px;
+    height: 24px;
+    flex: none;
+    fill: currentcolor;
+    margin-left: 12px;
+  }
+}
+
+.app-nav-rows__heading {
+  margin-top: 24px;
+  margin-bottom: 4px;
+}
+
+// Compact full-width navigation rows -----------------------------------------
+.app-nav-rows {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  border-top: 1px solid $app-grey-4;
+}
+
+.app-nav-rows__item {
+  margin: 0;
+  border-bottom: 1px solid $app-grey-4;
+}
+
+.app-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 10px 4px;
+  text-decoration: none;
+  color: $app-blue;
+
+  &:hover {
+    background-color: $app-grey-5;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    @include nhsuk.nhsuk-focused-text;
+  }
+
+  .nhsuk-icon {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    fill: currentcolor;
+    margin-left: 12px;
+  }
+}
+
+.app-nav-row__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-nav-row__title {
+  font-weight: 700;
+}
+
+.app-nav-row__description {
+  color: #4c6272;
+  font-size: 1rem;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+// Pathways --------------------------------------------------------------------
+.app-pathway-wrapper {
+  margin: 8px 0 32px;
+}
+
+.app-pathway {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.app-pathway__step {
+  position: relative;
+  border: 2px solid $app-blue;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin: 0 0 32px;
+  background-color: #ffffff;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  // Connector arrow between steps (decorative, not in the accessibility tree)
+  + .app-pathway__step::before {
+    content: "";
+    position: absolute;
+    left: 24px;
+    top: -32px;
+    width: 2px;
+    height: 30px;
+    background-color: $app-blue;
+  }
+
+  + .app-pathway__step::after {
+    content: "";
+    position: absolute;
+    left: 19px;
+    top: -12px;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid $app-blue;
+    border-bottom: 2px solid $app-blue;
+    transform: rotate(45deg);
+  }
+
+  &--caution {
+    border-color: #b45c00;
+    background-color: #fff8e6;
+  }
+}
+
+.app-pathway__title {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-bottom: 8px;
+}
+
+.app-pathway__branches {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.app-pathway__branch {
+  border-left: 4px solid $app-grey-3;
+  background-color: $app-grey-5;
+  padding: 8px 12px;
+  margin: 0 0 12px;
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  .app-pathway {
+    margin-top: 12px;
+  }
+
+  .app-pathway__step {
+    margin-bottom: 28px;
+  }
+}
+
+.app-pathway__branch-label {
+  font-weight: 700;
+  margin-bottom: 4px;
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-left: 2px solid #4c6272;
+    border-bottom: 2px solid #4c6272;
+    margin-right: 8px;
+    vertical-align: 2px;
+  }
+}
+
+// Cards and callouts -----------------------------------------------------------
+.app-setting-branch,
+.app-timing,
+.app-investigations {
+  .nhsuk-card {
+    height: calc(100% - 40px);
+  }
+}
+
+.app-stack-card {
+  .nhsuk-summary-list {
+    margin-bottom: 0;
+  }
+}
+
+.app-med-card {
+  border-width: 2px;
+
+  .nhsuk-card--care {
+    margin-top: 16px;
+  }
+}
+
+.app-med-group {
+  margin-top: 40px;
+}
+
+.app-checks {
+  li {
+    margin-bottom: 12px;
+  }
+}
+
+.app-checks__exception {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-left: 4px solid $app-amber;
+  background-color: #fff8e6;
+}
+
+.app-obs-list {
+  li {
+    padding: 8px 0;
+    border-bottom: 1px solid $app-grey-4;
+    margin: 0;
+  }
+}
+
+.app-domain {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid $app-grey-4;
+
+  .app-domain__heading {
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+.app-cause-list {
+  li {
+    padding: 6px 0;
+  }
+}
+
+.app-do-dont {
+  .nhsuk-list--cross li,
+  .nhsuk-list--tick li {
+    margin-bottom: 12px;
+  }
+}
+
+.app-checklist {
+  margin-bottom: 24px;
+}
+
+.app-source {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid $app-grey-4;
+
+  ul {
+    margin-bottom: 0;
+  }
+}
+
+.app-contact {
+  margin-bottom: 0;
+}
+
+.app-section {
+  margin-top: 40px;
+}
+
+// Tables ------------------------------------------------------------------------
+// Stacked responsive tables (nhsuk stacks rows until the desktop breakpoint).
+// Policy tables hold prose, so show the column label above a left-aligned
+// value instead of nhsuk's label-left / value-right layout, and hide empty
+// cells so a blank cell does not show its label with nothing after it.
+@include nhsuk.nhsuk-media-query($until: desktop) {
+  .nhsuk-table--responsive .nhsuk-table__body {
+    .nhsuk-table__header,
+    .nhsuk-table__cell {
+      display: block;
+      text-align: left;
+    }
+
+    .nhsuk-table__heading {
+      display: block;
+      font-weight: 700;
+      padding-right: 0;
+      margin-bottom: 4px;
+    }
+
+    .app-table__value {
+      display: block;
+    }
+
+    .app-table__cell--empty {
+      display: none;
+    }
+  }
+}
+
+.app-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 24px;
+  border: 1px solid $app-grey-4;
+
+  &:focus {
+    @include nhsuk.nhsuk-focused-text;
+  }
+
+  .nhsuk-table {
+    margin-bottom: 0;
+    min-width: 900px;
+  }
+}
+
+.app-table--grid {
+  .nhsuk-table__cell,
+  .nhsuk-table__header {
+    border: 1px solid $app-grey-3;
+    padding: 6px 8px;
+    vertical-align: top;
+  }
+}
+
+.app-pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  background-color: $app-grey-5;
+  border-left: 4px solid $app-grey-3;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+// Search -------------------------------------------------------------------------
+.app-search__row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.app-search__input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.app-search__button {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  .nhsuk-icon {
+    width: 24px;
+    height: 24px;
+    fill: currentcolor;
+  }
+}
+
+.app-results {
+  margin-top: 16px;
+}
+
+.app-result {
+  padding: 12px 0;
+  border-bottom: 1px solid $app-grey-4;
+  margin: 0;
+}
+
+.app-result__link {
+  font-weight: 700;
+}
+
+.app-result__section {
+  display: block;
+  color: #4c6272;
+  font-size: 1rem;
+  margin: 2px 0 4px;
+}
+
+.app-result__snippet {
+  margin-bottom: 0;
+
+  mark {
+    background-color: $app-amber;
+  }
+}
+
+// Bottom bar (phones and tablets) ---------------------------------------------
+.app-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  background-color: #ffffff;
+  border-top: 1px solid $app-grey-3;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.08);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.app-bottom-bar__link {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: $app-bar-height;
+  padding: 6px 4px;
+  color: $app-blue;
+  text-decoration: none;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  font-weight: 700;
+
+  .nhsuk-icon {
+    width: 26px;
+    height: 26px;
+    fill: currentcolor;
+    margin-bottom: 4px;
+  }
+
+  &--current {
+    color: #212b32;
+    box-shadow: inset 0 3px 0 $app-blue;
+  }
+
+  &:focus {
+    @include nhsuk.nhsuk-focused-text;
+  }
+}
+
+@include nhsuk.nhsuk-media-query($from: desktop) {
+  .app-bottom-bar {
+    display: none;
+  }
+}
+
+// Print -----------------------------------------------------------------------
+.app-print-footer {
+  display: none;
+}
+
+@media print {
+  .app-header__nav,
+  .app-bottom-bar,
+  .app-rail,
+  .nhsuk-pagination,
+  .nhsuk-breadcrumb,
+  .nhsuk-skip-link,
+  .app-search,
+  .nhsuk-footer__list {
+    display: none !important;
+  }
+
+  .app-layout {
+    display: block;
+  }
+
+  .app-content {
+    max-width: none;
+  }
+
+  .app-status {
+    border: 2px solid #000000;
+    padding: 0 8px;
+  }
+
+  .app-print-footer {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 9pt;
+    border-top: 1px solid #000000;
+    padding-top: 4px;
+    margin: 0;
+    background: #ffffff;
+  }
+
+  body {
+    padding-bottom: 24pt;
+  }
+
+  .app-pathway__step,
+  .app-pathway__branch,
+  .nhsuk-card {
+    break-inside: avoid;
+  }
+
+  .app-scroll {
+    overflow: visible;
+    border: 0;
+  }
+}

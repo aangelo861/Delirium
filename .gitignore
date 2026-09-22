@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Reference clones of the GOV.UK Design System and GOV.UK Frontend (not part of the site)
+govuk-design-system/
+govuk-frontend-main/
+
+# OS files
+.DS_Store
+
+# Playwright screenshots taken during checks
+.playwright-mcp/

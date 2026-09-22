@@ -1,0 +1,17 @@
+{
+  "name": "delirium-policy-microsite",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Task-first bedside reference for the draft Delirium policy, built from the policy markdown with the NHS design system. Static site for GitHub Pages.",
+  "type": "module",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "preview": "python3 -m http.server 8080 --directory docs",
+    "check": "node src/build.mjs && node -e \"import('./src/lib/check-links.mjs').then(m => { const r = m.checkLinks('docs'); if (r.errors.length) { console.error(r.errors.join('\\n')); process.exit(1) } console.log('ok') })\""
+  },
+  "devDependencies": {
+    "marked": "^18.0.14",
+    "nhsuk-frontend": "^10.6.1",
+    "sass": "^1.104.1"
+  }
+}
