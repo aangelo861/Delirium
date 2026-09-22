@@ -9,8 +9,10 @@
  */
 import fs from 'node:fs'
 import path from 'node:path'
+import { createHash } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import * as sass from 'sass'
+import { setAssetVersion } from './lib/html.mjs'
 
 import { parsePolicy } from './lib/policy.mjs'
 import { createMarkdown } from './lib/markdown.mjs'
@@ -59,6 +61,16 @@ function main() {
 
   prepareOutputDir()
 
+  // Stylesheet first, so pages can reference assets by content hash
+  const css = sass.compile(path.join(ROOT, 'src', 'styles', 'app.scss'), {
+    loadPaths: [path.join(ROOT, 'node_modules')],
+    style: 'compressed',
+    quietDeps: true
+  }).css
+  const jsSources = ['search.js', 'tree.js', 'app.js'].map((f) => fs.readFileSync(path.join(ROOT, 'src', 'js', f)))
+  const assetVersion = createHash('sha256').update(css).update(Buffer.concat(jsSources)).digest('hex').slice(0, 10)
+  setAssetVersion(assetVersion)
+
   // Pages (about is built last so it can list every collected marker)
   const pages = [
     buildHub(ctx),
@@ -93,16 +105,11 @@ function main() {
   }
 
   // Stylesheet
-  const css = sass.compile(path.join(ROOT, 'src', 'styles', 'app.scss'), {
-    loadPaths: [path.join(ROOT, 'node_modules')],
-    style: 'compressed',
-    quietDeps: true
-  })
-  write('stylesheets/app.css', css.css)
+  write('stylesheets/app.css', css)
 
   // Link check
   const { files, errors } = checkLinks(OUT)
-  console.log(`Built ${files} pages from ${path.basename(SOURCE)} (policy ${version}) into docs/`)
+  console.log(`Built ${files} pages from ${path.basename(SOURCE)} (policy ${version}) into docs/ (assets v=${assetVersion})`)
   console.log(`Search index: ${index.length} entries. Items to confirm collected: ${collected.length}.`)
   if (errors.length) {
     console.error(`\n${errors.length} broken internal link(s):`)

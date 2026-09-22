@@ -5,6 +5,14 @@
 
 export const TRUST = 'Chelsea and Westminster Hospital NHS Foundation Trust'
 
+// Content hash appended to stylesheet and script URLs so browsers fetch the
+// new files after every deploy instead of a cached copy (set by build.mjs).
+let assetVersion = ''
+export function setAssetVersion(v) {
+  assetVersion = v
+}
+export const asset = (path) => (assetVersion ? `${path}?v=${assetVersion}` : path)
+
 const svg = (path, cls) =>
   `<svg class="nhsuk-icon nhsuk-icon--${cls}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" focusable="false" aria-hidden="true">${path}</svg>`
 
@@ -310,7 +318,7 @@ export function layout({ site, page, content, rail = '', breadcrumbs = null, ver
   <meta name="description" content="${page.description || 'Delirium: prevention, recognition and management policy – draft for consultation.'}">
   <link rel="icon" href="${root}assets/images/favicon.png" type="image/png" sizes="192x192">
   <link rel="apple-touch-icon" href="${root}assets/images/apple-touch-icon.png">
-  <link rel="stylesheet" href="${root}stylesheets/app.css">
+  <link rel="stylesheet" href="${asset(`${root}stylesheets/app.css`)}">
 </head>
 <body class="app-body${page.bodyClass ? ` ${page.bodyClass}` : ''}">
 <script>document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' nhsuk-frontend-supported' : '');</script>
@@ -370,10 +378,10 @@ export function layout({ site, page, content, rail = '', breadcrumbs = null, ver
 </nav>
 <p class="app-print-footer">Draft ${version} – not ratified, for consultation only. ${policyTitle}. ${TRUST}.</p>
 <script type="module">
-  import { initAll } from '${root || './'}javascripts/nhsuk-frontend.min.js'
+  import { initAll } from '${asset(`${root || './'}javascripts/nhsuk-frontend.min.js`)}'
   initAll()
 </script>
-<script src="${root}javascripts/app.js" defer></script>
+<script src="${asset(`${root}javascripts/app.js`)}" defer></script>
 ${page.scripts || ''}
 </body>
 </html>
