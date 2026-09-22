@@ -17,6 +17,7 @@ export const icons = {
   cross: () => svg('<path d="M17 18.5c-.4 0-.8-.1-1.1-.4l-10-10c-.6-.6-.6-1.6 0-2.1.6-.6 1.5-.6 2.1 0l10 10c.6.6.6 1.5 0 2.1-.3.3-.6.4-1 .4z M7 18.5c-.4 0-.8-.1-1.1-.4-.6-.6-.6-1.5 0-2.1l10-10c.6-.6 1.5-.6 2.1 0 .6.6.6 1.5 0 2.1l-10 10c-.3.3-.6.4-1 .4z"/>', 'cross'),
   search: () => svg('<path d="m20.7 18.9-4.1-4.1a7 7 0 1 0-1.4 1.4l4 4.1a1 1 0 0 0 1.5 0c.4-.4.4-1 0-1.4ZM6 10.6a5 5 0 1 1 10 0 5 5 0 0 1-10 0Z"/>', 'search'),
   // App icons (not part of nhsuk-frontend)
+  chevronDown: () => svg('<path d="M12 15.5a1 1 0 0 1-.7-.3l-6-6a1 1 0 0 1 1.4-1.4l5.3 5.3 5.3-5.3a1 1 0 1 1 1.4 1.4l-6 6a1 1 0 0 1-.7.3Z"/>', 'chevron-down'),
   list: () => svg('<path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>', 'list'),
   help: () => svg('<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm0-4.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zM12 6a3.5 3.5 0 0 0-3.5 3.5h2a1.5 1.5 0 1 1 3 0c0 .8-.5 1.1-1.3 1.6-.8.5-1.7 1.2-1.7 2.9v.5h2V14c0-.7.4-1 1.2-1.5.9-.5 1.8-1.2 1.8-3A3.5 3.5 0 0 0 12 6z"/>', 'help')
 }
@@ -66,6 +67,21 @@ export function details({ summary, html, open = false, classes }) {
   return `<details class="${cls('nhsuk-details', classes)}"${open ? ' open' : ''}>
   <summary class="nhsuk-details__summary"><span class="nhsuk-details__summary-text">${summary}</span></summary>
   <div class="nhsuk-details__text">
+${html}
+  </div>
+</details>
+`
+}
+
+/**
+ * Collapsible block whose heading is a full-width blue button.
+ * Native details/summary: works without JavaScript; app.js opens it when a
+ * link targets an anchor inside, and when printing.
+ */
+export function reveal({ id, heading, html, level = 2, open = false, headingId }) {
+  return `<details class="app-reveal"${id ? ` id="${id}"` : ''}${open ? ' open' : ''}>
+  <summary class="app-reveal__summary"><h${level} class="app-reveal__heading"${headingId ? ` id="${headingId}"` : ''}>${heading}</h${level}>${icons.chevronDown()}</summary>
+  <div class="app-reveal__content">
 ${html}
   </div>
 </details>
@@ -254,6 +270,7 @@ export function layout({ site, page, content, rail = '', breadcrumbs = null, ver
   const href = (to) => site.href(page.url, to)
   const nav = [
     { key: 'tasks', text: 'Tasks', href: href(site.urls.hub) },
+    { key: 'start', text: 'Where do I start?', href: href(site.urls.pathway) },
     { key: 'policy', text: 'Full policy', href: href(site.urls.policyIndex) },
     { key: 'search', text: 'Search', href: href(site.urls.search) },
     { key: 'help', text: 'Get help', href: href(site.urls.help) }
@@ -356,6 +373,7 @@ export function layout({ site, page, content, rail = '', breadcrumbs = null, ver
   import { initAll } from '${root || './'}javascripts/nhsuk-frontend.min.js'
   initAll()
 </script>
+<script src="${root}javascripts/app.js" defer></script>
 ${page.scripts || ''}
 </body>
 </html>

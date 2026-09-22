@@ -1,15 +1,24 @@
 /**
  * Homepage: task-first hub.
- * First screen = draft status, immediate safety message (section 9.1) and the
- * three priority entry points. Then compact navigation rows.
+ * Order: draft status (page shell) → "Where do I start?" scenario picker that
+ * opens the decision tree → immediate safety message (section 9.1) → the
+ * three priority entry points → compact navigation rows.
  */
 import * as h from '../lib/html.mjs'
+import { scenarios } from './pathway.mjs'
 
 export function buildHub(ctx) {
   const { site, policy, md, version } = ctx
   const page = { url: site.urls.hub, title: 'Delirium – tasks', navKey: 'tasks', bodyClass: 'app-body--hub' }
   const href = (to) => site.href(page.url, to)
   const t = (key) => site.task(key)
+
+  const start = `<h2 class="nhsuk-heading-m app-hub__start-heading" id="start">Where do I start?</h2>
+<p>Choose the situation. A few questions lead to the right part of the policy.</p>
+${h.navRows(
+  scenarios.map((s) => ({ text: s.label, href: `${href(site.urls.pathway)}#n-${s.id}` })),
+  { label: 'Scenarios' }
+)}`
 
   const immediate = h.careCard({
     variant: 'non-urgent',
@@ -38,8 +47,9 @@ ${['assess', 'distress', 'monitor']
 
   const content = `
 <h1 class="nhsuk-heading-l app-hub__title">Delirium</h1>
+${start}
 ${immediate}
-<h2 class="nhsuk-u-visually-hidden" id="tasks">Start with the task you are doing</h2>
+<h2 class="nhsuk-heading-s app-nav-rows__heading" id="tasks">Or go straight to a task</h2>
 ${primary}
 <h2 class="nhsuk-heading-s app-nav-rows__heading">More tasks</h2>
 ${rows}

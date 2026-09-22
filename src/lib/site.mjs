@@ -9,6 +9,7 @@ import path from 'node:path'
 
 export const urls = {
   hub: 'index.html',
+  pathway: 'pathway.html',
   assess: 'assess.html',
   causes: 'causes.html',
   distress: 'distress.html',

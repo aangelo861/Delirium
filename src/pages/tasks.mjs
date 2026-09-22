@@ -7,6 +7,25 @@
  * tables); hand-written text is limited to navigation and labels.
  */
 import * as h from '../lib/html.mjs'
+import { slugify } from '../lib/markdown.mjs'
+
+/**
+ * Turn the hand-assembled intro HTML into collapsible blocks: content before
+ * the first <h2> (safety cards) stays visible; each <h2> plus what follows it
+ * becomes a details block whose heading is a blue button.
+ */
+function revealify(html) {
+  const blocks = []
+  const parts = html.split(/(?=<h2 class="nhsuk-heading-m">)/)
+  const out = parts.map((p) => {
+    const m = p.match(/^<h2 class="nhsuk-heading-m">([\s\S]*?)<\/h2>\s*([\s\S]*)$/)
+    if (!m) return p
+    const id = `intro-${slugify(m[1])}`
+    blocks.push({ id, heading: m[1] })
+    return h.reveal({ id, heading: m[1], html: m[2], headingId: `${id}-heading` })
+  })
+  return { html: out.join('\n'), blocks }
+}
 
 export function buildTasks(ctx) {
   return [assess, distress, monitor, causes, prevent, discharge, special].map((fn) => buildTaskPage(ctx, fn))
@@ -56,14 +75,13 @@ function buildTaskPage(ctx, fn) {
     renderOpts
   }
 
-  const { intro, sections, sources } = fn(tools)
+  const { intro: rawIntro, sections, sources } = fn(tools)
 
-  // Assemble page: intro (always visible) + h2 sections + source note + pagination
+  // Assemble page: safety cards (always visible) + collapsible blocks whose
+  // headings are blue buttons + source note + pagination
+  const { html: intro, blocks: introBlocks } = revealify(rawIntro)
   const body = sections
-    .map((s) => `<section class="app-section" id="${s.id}" aria-labelledby="${s.id}-heading">
-<h2 class="nhsuk-heading-l" id="${s.id}-heading">${s.heading}</h2>
-${s.html}
-</section>`)
+    .map((s) => h.reveal({ id: s.id, heading: s.heading, html: s.html, headingId: `${s.id}-heading` }))
     .join('\n')
 
   const index = site.tasks.findIndex((t) => t.key === fn.key)
@@ -85,6 +103,7 @@ ${paginationHtml}
 
   const rail = h.contentsList(
     [
+      ...introBlocks.map((b) => ({ text: b.heading, href: `#${b.id}` })),
       ...sections.map((s) => ({ text: s.heading, href: `#${s.id}` })),
       { text: 'Source in the full policy', href: '#source' }
     ],

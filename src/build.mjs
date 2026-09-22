@@ -17,6 +17,7 @@ import { createMarkdown } from './lib/markdown.mjs'
 import { site } from './lib/site.mjs'
 import { checkLinks } from './lib/check-links.mjs'
 import { buildHub } from './pages/hub.mjs'
+import { buildPathway } from './pages/pathway.mjs'
 import { buildTasks } from './pages/tasks.mjs'
 import { buildPolicyPages } from './pages/policy.mjs'
 import { buildAbout, buildHelp, buildSearch } from './pages/misc.mjs'
@@ -61,6 +62,7 @@ function main() {
   // Pages (about is built last so it can list every collected marker)
   const pages = [
     buildHub(ctx),
+    buildPathway(ctx),
     ...buildTasks(ctx),
     ...buildPolicyPages(ctx),
     buildHelp(ctx),
@@ -82,6 +84,8 @@ function main() {
   // Assets
   write('javascripts/nhsuk-frontend.min.js', fs.readFileSync(path.join(NHSUK, 'nhsuk-frontend.min.js')))
   write('javascripts/search.js', fs.readFileSync(path.join(ROOT, 'src', 'js', 'search.js')))
+  write('javascripts/tree.js', fs.readFileSync(path.join(ROOT, 'src', 'js', 'tree.js')))
+  write('javascripts/app.js', fs.readFileSync(path.join(ROOT, 'src', 'js', 'app.js')))
   const imagesDir = path.join(ROOT, 'src', 'assets', 'images')
   for (const f of fs.readdirSync(imagesDir)) {
     if (f.startsWith('.')) continue
