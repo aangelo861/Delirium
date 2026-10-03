@@ -3,6 +3,8 @@
 // layer of app styles for the task-first layout, pathways and the bottom bar.
 
 @use "nhsuk-frontend/dist/nhsuk/index" as nhsuk with (
+  // Relative to stylesheets/app.css, so icons resolve under the GitHub Pages sub-path
+  $nhsuk-assets-path: "../assets/",
   $nhsuk-template-background-colour: #ffffff,
   $nhsuk-body-background-colour: #ffffff
 );
@@ -171,6 +173,11 @@ body {
   max-width: 44em;
 }
 
+// Long reference URLs must wrap rather than widen the page on phones
+.app-content a {
+  overflow-wrap: anywhere;
+}
+
 .app-rail {
   order: 1; // after the content on small screens
   border-top: 1px solid $app-grey-4;
@@ -187,6 +194,10 @@ body {
 }
 
 @include nhsuk.nhsuk-media-query($from: desktop) {
+  .app-policy-contents {
+    display: none;
+  }
+
   .app-layout {
     grid-template-columns: $app-rail-width minmax(0, 1fr);
     gap: 48px;
@@ -219,27 +230,11 @@ body {
   margin-bottom: 0;
 }
 
-.app-task-buttons {
-  margin: 8px 0 24px;
-}
+.app-hub__search {
+  margin-top: 32px;
 
-.app-task-button {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  text-align: left;
-  min-height: 56px;
-  margin-bottom: 12px;
-  padding: 12px 16px;
-  font-weight: 700;
-
-  .nhsuk-icon {
-    width: 24px;
-    height: 24px;
-    flex: none;
-    fill: currentcolor;
-    margin-left: 12px;
+  .nhsuk-form-group {
+    margin-bottom: 24px;
   }
 }
 
@@ -472,75 +467,6 @@ body {
   }
 }
 
-// Decision tree ("Where do I start?") ------------------------------------------
-.app-tree__help {
-  margin-bottom: 16px;
-}
-
-.app-tree__controls {
-  margin-bottom: 8px;
-}
-
-.app-tree__trail {
-  border-left: 4px solid $app-grey-3;
-  background-color: $app-grey-5;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-
-  h2 {
-    margin-bottom: 8px;
-  }
-
-  ol {
-    margin: 0;
-    padding-left: 20px;
-    list-style: decimal;
-  }
-
-  li {
-    margin-bottom: 4px;
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-}
-
-.app-tree__show-all {
-  margin-bottom: 16px;
-}
-
-.app-tree__node {
-  padding-top: 8px;
-}
-
-.app-tree__branch {
-  margin-bottom: 4px;
-}
-
-.app-tree__options {
-  margin-top: 8px;
-}
-
-.app-tree__restart {
-  margin-top: 16px;
-}
-
-// Only JavaScript hides nodes; without it every node stays visible and the
-// nodes read as a printable document separated by rules.
-.app-tree__node[hidden] {
-  display: none !important;
-}
-
-.app-tree:not(.app-tree--js) .app-tree__node,
-.app-tree--all .app-tree__node {
-  border-top: 2px solid $app-grey-4;
-  padding-top: 24px;
-  margin-top: 24px;
-}
-
-.app-hub__start-heading {
-  margin-top: 8px;
-}
-
 // Cards and callouts -----------------------------------------------------------
 .app-setting-branch,
 .app-timing,
@@ -630,12 +556,34 @@ body {
   }
 }
 
-.app-contact {
-  margin-bottom: 0;
+// Extra help: who to contact, bleep, reasons ------------------------------------
+.app-contacts {
+  .nhsuk-table__header[scope="row"] {
+    min-width: 9em;
+  }
 }
 
-.app-section {
-  margin-top: 40px;
+.app-contacts__reasons {
+  margin-bottom: 0;
+
+  li:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Stacked on phones: the team name heads each block instead of a "Who" label
+@include nhsuk.nhsuk-media-query($until: desktop) {
+  .app-contacts .nhsuk-table__body .nhsuk-table__header {
+    .nhsuk-table__heading {
+      display: none;
+    }
+
+    .app-table__value {
+      font-size: 1.25rem;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+  }
 }
 
 // Tables ------------------------------------------------------------------------
@@ -879,18 +827,6 @@ body {
 
   .app-reveal__heading {
     font-size: 16pt;
-  }
-
-  // Print the whole decision tree, not just the current question
-  .app-tree__node[hidden] {
-    display: block !important;
-    border-top: 2px solid #000000;
-    padding-top: 16px;
-    margin-top: 16px;
-  }
-
-  .app-tree__controls {
-    display: none;
   }
 
   .app-scroll {

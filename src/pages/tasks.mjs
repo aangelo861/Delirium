@@ -32,18 +32,11 @@ export function buildTasks(ctx) {
 }
 
 function buildTaskPage(ctx, fn) {
-  const { site, policy, md, version, collect } = ctx
+  const { site, policy, md, version } = ctx
   const task = site.task(fn.key)
-  const page = { url: task.url, title: task.title, navKey: 'tasks', description: task.description }
+  const page = { url: task.url, title: task.title, navKey: 'start', description: task.description }
   const href = (to) => site.href(page.url, to)
-  const renderOpts = (extra = {}) => ({
-    pageUrl: page.url,
-    collect,
-    context: task.title,
-    anchorUrl: page.url,
-    taskList: 'list',
-    ...extra
-  })
+  const renderOpts = (extra = {}) => ({ pageUrl: page.url, taskList: 'list', ...extra })
 
   // Helpers bound to this page
   const tools = {
@@ -118,7 +111,7 @@ ${paginationHtml}
       site.tasks.map((t) => (t.key === fn.key ? { text: t.title, current: true } : { text: t.title, href: href(t.url) })),
       { label: 'Other tasks', hiddenHeading: 'Other tasks' }
     )}`,
-    breadcrumbs: [{ text: 'Tasks', href: href(site.urls.hub) }],
+    breadcrumbs: [{ text: 'Where do I start?', href: href(site.urls.hub) }],
     version,
     policyTitle: policy.title
   })
@@ -258,7 +251,7 @@ ${h.actionLink({ href: `${href(site.task('special').url)}#capacity`, text: 'Capa
 }
 assess.key = 'assess'
 
-/** An appendix rendered inside a details element, with a link to the full page. */
+/** An appendix rendered inside a details element, with a link to it in the full policy. */
 function policyAppendixDetails(t, letter, summary) {
   const a = t.policy.appendix(letter)
   return h.details({
@@ -315,7 +308,7 @@ ${checks
                 branches: [
                   {
                     label: 'Contraindication or uncertainty',
-                    html: `<p>Senior or specialist advice – Liaison Psychiatry, Care of the Elderly (${subLink('12.7', 'section 12.7')}). <a href="${href(site.urls.help)}">Get help</a>.</p>`
+                    html: `<p>Senior or specialist advice – Liaison Psychiatry, Care of the Elderly (${subLink('12.7', 'section 12.7')}). <a href="${href(site.urls.help)}">Where to get extra help</a>.</p>`
                   },
                   {
                     label: 'No contraindication identified',
@@ -444,7 +437,7 @@ ${benzodiazepines}`
     {
       id: 'next-steps',
       heading: 'Next steps',
-      html: `${taskAction('monitor')}${taskAction('causes')}${h.actionLink({ href: href(site.urls.help), text: 'Get help – senior and specialist contacts' })}`
+      html: `${taskAction('monitor')}${taskAction('causes')}${h.actionLink({ href: href(site.urls.help), text: 'Where to get extra help – bleeps and reasons to contact' })}`
     }
   ]
 
@@ -516,7 +509,7 @@ ${beforeDose}
       id: 'monitoring-record',
       heading: 'Monitoring record',
       html: `<p>${inline(md.quote(mdE, '(To be built into the EPR'))}</p>
-${h.actionLink({ href: href(site.urls.appendix('E')), text: 'Open the post-medication monitoring record (Appendix E) to print' })}
+${h.actionLink({ href: href(site.urls.appendix('E')), text: 'Post-medication monitoring record (Appendix E)' })}
 <p>This site explains the monitoring schedule. Record observations in the approved Trust workflow, not in the browser.</p>`
     },
     { id: 'daily-review', heading: 'Daily review and stopping', html: sub('12.10') },
@@ -790,7 +783,7 @@ ${indexList(otherIndex)}
     {
       id: 'local-pathways',
       heading: 'Linked local pathways',
-      html: `<p>Local policies named in this section (alcohol withdrawal, rapid tranquillisation, restraint, MCA and DoLS, end of life, covert medication) are listed with contact points on the <a href="${href(site.urls.help)}">Get help</a> page. Links to the Trust documents are <mark class="app-to-confirm">[Trust to confirm]</mark>.</p>${taskAction('distress')}${taskAction('discharge')}`
+      html: `<p>Local policies named in this section (alcohol withdrawal, rapid tranquillisation, restraint, MCA and DoLS, end of life, covert medication) are separate Trust documents; links to them are <mark class="app-to-confirm">[Trust to confirm]</mark>. Who to contact is on the <a href="${href(site.urls.help)}">Where to get extra help</a> page.</p>${taskAction('distress')}${taskAction('discharge')}`
     }
   ]
 

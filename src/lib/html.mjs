@@ -27,6 +27,7 @@ export const icons = {
   // App icons (not part of nhsuk-frontend)
   chevronDown: () => svg('<path d="M12 15.5a1 1 0 0 1-.7-.3l-6-6a1 1 0 0 1 1.4-1.4l5.3 5.3 5.3-5.3a1 1 0 1 1 1.4 1.4l-6 6a1 1 0 0 1-.7.3Z"/>', 'chevron-down'),
   list: () => svg('<path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>', 'list'),
+  document: () => svg('<path d="M6 2h8.6L20 7.4V22H6V2Zm2 2v16h10V8.5h-4.5V4H8Zm2 8h6v1.5h-6V12Zm0 3.5h6V17h-6v-1.5Z"/>', 'document'),
   help: () => svg('<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16zm0-4.5a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zM12 6a3.5 3.5 0 0 0-3.5 3.5h2a1.5 1.5 0 1 1 3 0c0 .8-.5 1.1-1.3 1.6-.8.5-1.7 1.2-1.7 2.9v.5h2V14c0-.7.4-1 1.2-1.5.9-.5 1.8-1.2 1.8-3A3.5 3.5 0 0 0 12 6z"/>', 'help')
 }
 
@@ -277,11 +278,10 @@ export function layout({ site, page, content, rail = '', breadcrumbs = null, ver
   const root = site.root(page.url)
   const href = (to) => site.href(page.url, to)
   const nav = [
-    { key: 'tasks', text: 'Tasks', href: href(site.urls.hub) },
-    { key: 'start', text: 'Where do I start?', href: href(site.urls.pathway) },
-    { key: 'policy', text: 'Full policy', href: href(site.urls.policyIndex) },
+    { key: 'start', text: 'Where do I start?', href: href(site.urls.hub) },
+    { key: 'policy', text: 'Full policy', href: href(site.urls.policyFull) },
     { key: 'search', text: 'Search', href: href(site.urls.search) },
-    { key: 'help', text: 'Get help', href: href(site.urls.help) }
+    { key: 'help', text: 'Where to get extra help', href: href(site.urls.help) }
   ]
   const navHtml = nav
     .map((n) => {
@@ -290,9 +290,10 @@ export function layout({ site, page, content, rail = '', breadcrumbs = null, ver
     })
     .join('\n          ')
   const bottom = [
-    { key: 'tasks', text: 'Tasks', href: href(site.urls.hub), icon: icons.list() },
+    { key: 'start', text: 'Start', href: href(site.urls.hub), icon: icons.list() },
+    { key: 'policy', text: 'Full policy', href: href(site.urls.policyFull), icon: icons.document() },
     { key: 'search', text: 'Search', href: href(site.urls.search), icon: icons.search() },
-    { key: 'help', text: 'Get help', href: href(site.urls.help), icon: icons.help() }
+    { key: 'help', text: 'Extra help', href: href(site.urls.help), icon: icons.help() }
   ]
     .map((b) => {
       const current = b.key === page.navKey
@@ -363,11 +364,10 @@ export function layout({ site, page, content, rail = '', breadcrumbs = null, ver
     <div class="nhsuk-footer__meta">
       <h2 class="nhsuk-u-visually-hidden">Support links</h2>
       <ul class="nhsuk-footer__list">
-        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.hub)}">Tasks</a></li>
-        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.policyIndex)}">Full policy</a></li>
-        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.policyFull)}">Print the full policy</a></li>
-        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.about)}">Policy version and changes</a></li>
-        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.help)}">Get help</a></li>
+        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.hub)}">Where do I start?</a></li>
+        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.policyFull)}">Full policy</a></li>
+        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.search)}">Search</a></li>
+        <li class="nhsuk-footer__list-item"><a class="nhsuk-footer__list-item-link" href="${href(site.urls.help)}">Where to get extra help</a></li>
       </ul>
       <p class="nhsuk-body-s">${policyTitle}. Draft ${version} for consultation – not yet ratified. This prototype is not approved clinical guidance; follow current Trust policy.</p>
     </div>

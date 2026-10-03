@@ -9,7 +9,6 @@ import path from 'node:path'
 
 export const urls = {
   hub: 'index.html',
-  pathway: 'pathway.html',
   assess: 'assess.html',
   causes: 'causes.html',
   distress: 'distress.html',
@@ -17,16 +16,14 @@ export const urls = {
   prevent: 'prevent.html',
   discharge: 'discharge.html',
   special: 'special-situations.html',
-  training: 'training-and-audit.html',
-  about: 'about.html',
   help: 'get-help.html',
   search: 'search.html',
   searchIndex: 'search-index.json',
-  policyIndex: 'policy/index.html',
+  // The full policy is one page; sections, subsections and appendices are anchors in it
   policyFull: 'policy/full.html',
-  section: (n) => `policy/section-${n}.html`,
-  appendix: (letter) => `policy/appendix-${String(letter).toLowerCase()}.html`,
-  subsection: (num) => `policy/section-${String(num).split('.')[0]}.html#s-${String(num).replace('.', '-')}`
+  section: (n) => `policy/full.html#section-${n}`,
+  appendix: (letter) => `policy/full.html#appendix-${String(letter).toLowerCase()}`,
+  subsection: (num) => `policy/full.html#s-${String(num).replace('.', '-')}`
 }
 
 /** Prefix that reaches the site root from a page URL ("" or "../"). */
@@ -38,63 +35,67 @@ export function root(url) {
 /** Relative href from one page URL to another (either may carry a #fragment). */
 export function href(from, to) {
   const [toPath, hash] = to.split('#')
+  if (hash && toPath === from) return `#${hash}`
   const fromDir = path.posix.dirname(from)
   let rel = path.posix.relative(fromDir === '.' ? '' : fromDir, toPath)
   if (!rel) rel = path.posix.basename(toPath)
   return hash ? `${rel}#${hash}` : rel
 }
 
-/** The seven task pages, in reading order (used for prev/next and the hub). */
+/**
+ * The seven task pages, in reading order (used for prev/next and the homepage).
+ * `situation` is the wording of the "Where do I start?" row that leads to the page.
+ */
 export const tasks = [
   {
     key: 'assess',
     url: urls.assess,
     title: 'Assess suspected delirium',
+    situation: 'A patient has new or fluctuating confusion, drowsiness or withdrawal, or is "not themselves"',
     description: 'Immediate safety assessment, choosing the assessment tool, diagnosis'
   },
   {
     key: 'distress',
     url: urls.distress,
     title: 'Manage severe distress',
+    situation: 'A patient with delirium is distressed, agitated or a risk to themselves or others',
     description: 'Unmet needs, de-escalation, when medication may be considered'
   },
   {
     key: 'monitor',
     url: urls.monitor,
     title: 'Monitor after medication',
+    situation: 'Medication has been given for behavioural disturbance',
     description: 'Escalation triggers, timing, observations before any further dose'
   },
   {
     key: 'causes',
     url: urls.causes,
     title: 'Find and treat causes',
+    situation: 'Delirium is likely or confirmed and I need to find and treat the cause',
     description: 'Bedside cause checklist and investigations'
   },
   {
     key: 'prevent',
     url: urls.prevent,
     title: 'Prevent delirium',
+    situation: 'A patient is at risk of delirium and I want to prevent it',
     description: 'Admission risk factors and the prevention bundle'
   },
   {
     key: 'discharge',
     url: urls.discharge,
     title: 'Discharge and follow-up',
+    situation: 'I am planning discharge after delirium',
     description: 'Safe discharge, medication plan, communication with the GP'
   },
   {
     key: 'special',
     url: urls.special,
     title: 'Special situations and capacity',
+    situation: "A special situation: Parkinson's or Lewy body dementia, critical care, withdrawal, end of life, dementia, capacity",
     description: "Parkinson's and DLB, critical care, withdrawal, end of life, capacity"
   }
-]
-
-export const secondaryLinks = [
-  { key: 'policy', url: urls.policyIndex, title: 'Full policy', description: 'All 19 sections and appendices with original numbering' },
-  { key: 'patients', url: urls.section(15), title: 'Patient and carer information', description: 'Section 15' },
-  { key: 'training', url: urls.training, title: 'Training and audit', description: 'Sections 17 and 18' },
-  { key: 'about', url: urls.about, title: 'Policy version and changes', description: 'Draft status, items to confirm, change log' }
 ]
 
 export function task(key) {
@@ -103,4 +104,4 @@ export function task(key) {
   return t
 }
 
-export const site = { urls, root, href, tasks, secondaryLinks, task }
+export const site = { urls, root, href, tasks, task }

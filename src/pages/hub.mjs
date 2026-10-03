@@ -1,24 +1,20 @@
 /**
- * Homepage: task-first hub.
- * Order: draft status (page shell) → "Where do I start?" scenario picker that
- * opens the decision tree → immediate safety message (section 9.1) → the
- * three priority entry points → compact navigation rows.
+ * Homepage: "Where do I start?".
+ * Order: draft status (page shell) → one row per situation, each going
+ * straight to its task page → immediate safety message (section 9.1) →
+ * search, the full policy and where to get extra help.
  */
 import * as h from '../lib/html.mjs'
-import { scenarios } from './pathway.mjs'
 
 export function buildHub(ctx) {
   const { site, policy, md, version } = ctx
-  const page = { url: site.urls.hub, title: 'Delirium – tasks', navKey: 'tasks', bodyClass: 'app-body--hub' }
+  const page = { url: site.urls.hub, title: 'Where do I start?', navKey: 'start', bodyClass: 'app-body--hub' }
   const href = (to) => site.href(page.url, to)
-  const t = (key) => site.task(key)
 
-  const start = `<h2 class="nhsuk-heading-m app-hub__start-heading" id="start">Where do I start?</h2>
-<p>Choose the situation. A few questions lead to the right part of the policy.</p>
-${h.navRows(
-  scenarios.map((s) => ({ text: s.label, href: `${href(site.urls.pathway)}#n-${s.id}` })),
-  { label: 'Scenarios' }
-)}`
+  const situations = h.navRows(
+    site.tasks.map((t) => ({ text: t.situation, href: href(t.url), description: t.title })),
+    { label: 'Situations' }
+  )
 
   const immediate = h.careCard({
     variant: 'non-urgent',
@@ -29,33 +25,36 @@ ${h.navRows(
 <p class="nhsuk-body-s app-hub__source">An acute change in cognition is a medical emergency until proven otherwise. <a href="${href(site.urls.subsection('9.1'))}">Full immediate assessment (section 9.1)</a></p>`
   })
 
-  const primary = `<div class="app-task-buttons">
-${['assess', 'distress', 'monitor']
-  .map((k) => `  <a class="nhsuk-button nhsuk-button--brand app-task-button" href="${href(t(k).url)}" role="button" draggable="false" data-module="nhsuk-button"><span>${t(k).title}</span>${h.icons.arrowRight()}</a>`)
-  .join('\n')}
-</div>`
+  const search = `<form class="app-search app-hub__search" action="${href(site.urls.search)}" method="get" role="search">
+  <div class="nhsuk-form-group">
+    <label class="nhsuk-label nhsuk-label--s" for="q">Search the policy</label>
+    <div class="app-search__row">
+      <input class="nhsuk-input app-search__input" id="q" name="q" type="search" autocomplete="off" enterkeyhint="search">
+      <button class="nhsuk-button app-search__button" type="submit" data-module="nhsuk-button">Search</button>
+    </div>
+  </div>
+</form>`
 
-  const rows = h.navRows(
-    ['causes', 'prevent', 'discharge', 'special'].map((k) => ({ text: t(k).title, href: href(t(k).url), description: t(k).description })),
-    { label: 'More tasks' }
-  )
-
-  const secondary = h.navRows(
-    site.secondaryLinks.map((l) => ({ text: l.title, href: href(l.url), description: l.description })),
-    { label: 'Policy and reference' }
+  const more = h.navRows(
+    [
+      {
+        text: 'Full policy',
+        href: href(site.urls.policyFull),
+        description: `All ${policy.sections.length} sections and ${policy.appendices.length} appendices on one page`
+      },
+      { text: 'Where to get extra help', href: href(site.urls.help), description: 'Bleeps and reasons to contact' }
+    ],
+    { label: 'Full policy and extra help' }
   )
 
   const content = `
-<h1 class="nhsuk-heading-l app-hub__title">Delirium</h1>
-${start}
+<h1 class="nhsuk-heading-l app-hub__title">Where do I start?</h1>
+<p>Choose the situation to go straight to the guidance for it.</p>
+${situations}
 ${immediate}
-<h2 class="nhsuk-heading-s app-nav-rows__heading" id="tasks">Or go straight to a task</h2>
-${primary}
-<h2 class="nhsuk-heading-s app-nav-rows__heading">More tasks</h2>
-${rows}
-<h2 class="nhsuk-heading-s app-nav-rows__heading">Policy and reference</h2>
-${secondary}
-<p class="nhsuk-body-s app-hub__note">Task pages are a navigation layer over the policy. The <a href="${href(site.urls.policyIndex)}">full policy</a> keeps all 19 sections and appendices with their original numbering. Items marked <mark class="app-to-confirm">[Trust to confirm]</mark> need a local decision before ratification – see <a href="${href(site.urls.about)}">policy version and changes</a>.</p>
+${search}
+${more}
+<p class="nhsuk-body-s app-hub__note">Each situation page re-arranges the policy's own wording for bedside use and links to the section it comes from. Items marked <mark class="app-to-confirm">[Trust to confirm]</mark> need a local decision before ratification.</p>
 `
 
   return {
@@ -63,10 +62,10 @@ ${secondary}
     html: h.layout({ site, page, content, version, policyTitle: policy.title }),
     searchEntries: [
       {
-        title: 'Tasks (home)',
+        title: 'Where do I start?',
         section: 'Home',
         url: page.url,
-        text: md.stripTags(content)
+        text: md.stripTags(`${situations}${immediate}`)
       }
     ]
   }

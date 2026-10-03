@@ -1,6 +1,6 @@
 /* Site-wide behaviour for collapsible blocks (details.app-reveal):
-   - open the block that contains the anchor a link, search result or the
-     decision tree points to, so deep links always land on visible content
+   - open the block that contains the anchor a link or search result points
+     to, so deep links always land on visible content
    - open every block before printing, restore afterwards */
 (function () {
   function openAround(el) {

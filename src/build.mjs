@@ -19,10 +19,9 @@ import { createMarkdown } from './lib/markdown.mjs'
 import { site } from './lib/site.mjs'
 import { checkLinks } from './lib/check-links.mjs'
 import { buildHub } from './pages/hub.mjs'
-import { buildPathway } from './pages/pathway.mjs'
 import { buildTasks } from './pages/tasks.mjs'
-import { buildPolicyPages } from './pages/policy.mjs'
-import { buildAbout, buildHelp, buildSearch } from './pages/misc.mjs'
+import { buildPolicyPage } from './pages/policy.mjs'
+import { buildHelp, buildSearch } from './pages/misc.mjs'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SOURCE = path.resolve(ROOT, process.argv[2] || 'Delirium_Policy_DRAFT_v0.1.md')
@@ -54,10 +53,8 @@ function main() {
   const policy = parsePolicy(markdown)
   const version = (policy.metaValue('Status').match(/v\d+\.\d+/) || ['v?'])[0]
 
-  const collected = []
-  const collect = (item) => collected.push(item)
   const md = createMarkdown({ site, policy })
-  const ctx = { site, policy, md, version, collect, sourceName: path.basename(SOURCE) }
+  const ctx = { site, policy, md, version }
 
   prepareOutputDir()
 
@@ -67,20 +64,11 @@ function main() {
     style: 'compressed',
     quietDeps: true
   }).css
-  const jsSources = ['search.js', 'tree.js', 'app.js'].map((f) => fs.readFileSync(path.join(ROOT, 'src', 'js', f)))
+  const jsSources = ['search.js', 'app.js'].map((f) => fs.readFileSync(path.join(ROOT, 'src', 'js', f)))
   const assetVersion = createHash('sha256').update(css).update(Buffer.concat(jsSources)).digest('hex').slice(0, 10)
   setAssetVersion(assetVersion)
 
-  // Pages (about is built last so it can list every collected marker)
-  const pages = [
-    buildHub(ctx),
-    buildPathway(ctx),
-    ...buildTasks(ctx),
-    ...buildPolicyPages(ctx),
-    buildHelp(ctx),
-    buildSearch(ctx)
-  ]
-  pages.push(buildAbout(ctx, collected))
+  const pages = [buildHub(ctx), ...buildTasks(ctx), buildPolicyPage(ctx), buildHelp(ctx), buildSearch(ctx)]
 
   for (const p of pages) write(p.page.url, p.html)
 
@@ -96,7 +84,6 @@ function main() {
   // Assets
   write('javascripts/nhsuk-frontend.min.js', fs.readFileSync(path.join(NHSUK, 'nhsuk-frontend.min.js')))
   write('javascripts/search.js', fs.readFileSync(path.join(ROOT, 'src', 'js', 'search.js')))
-  write('javascripts/tree.js', fs.readFileSync(path.join(ROOT, 'src', 'js', 'tree.js')))
   write('javascripts/app.js', fs.readFileSync(path.join(ROOT, 'src', 'js', 'app.js')))
   const imagesDir = path.join(ROOT, 'src', 'assets', 'images')
   for (const f of fs.readdirSync(imagesDir)) {
@@ -104,13 +91,16 @@ function main() {
     write(path.posix.join('assets/images', f), fs.readFileSync(path.join(imagesDir, f)))
   }
 
-  // Stylesheet
+  // Stylesheet, and the nhsuk icons it references by URL
   write('stylesheets/app.css', css)
+  for (const [, f] of css.matchAll(/url\("\.\.\/assets\/images\/([^"]+)"\)/g)) {
+    write(path.posix.join('assets/images', f), fs.readFileSync(path.join(NHSUK, 'assets', 'images', f)))
+  }
 
   // Link check
   const { files, errors } = checkLinks(OUT)
   console.log(`Built ${files} pages from ${path.basename(SOURCE)} (policy ${version}) into docs/ (assets v=${assetVersion})`)
-  console.log(`Search index: ${index.length} entries. Items to confirm collected: ${collected.length}.`)
+  console.log(`Search index: ${index.length} entries.`)
   if (errors.length) {
     console.error(`\n${errors.length} broken internal link(s):`)
     for (const e of errors) console.error(`  - ${e}`)

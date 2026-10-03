@@ -6,12 +6,13 @@ The policy markdown file in this folder is the single source of truth. Every pag
 
 ## What the site contains
 
-- **Task hub** (`index.html`) – draft status, the immediate safety message from section 9.1, and three priority entry points: assess, manage distress, monitor after medication. Then compact rows for the other tasks and the reference layer.
+The site is deliberately small: eleven pages in total.
+
+- **Where do I start?** (`index.html`) – draft status, one row per situation (seven), each going straight to its task page, the immediate safety message from section 9.1, a search box, and links to the full policy and extra help.
 - **Seven task pages** – Assess suspected delirium, Manage severe distress, Monitor after medication, Find and treat causes, Prevent delirium, Discharge and follow-up, Special situations and capacity. Each follows the same order: immediate action or warning → pathway or checklist → supporting detail → source section.
-- **Full policy** (`policy/`) – all 19 sections and 7 appendices with their original numbering, one page each, plus a single printable page.
-- **Get help** – escalation triggers and specialist teams from section 5, with contact details left as `[Trust to confirm]`.
-- **Search** – client-side search over every subsection and task page.
-- **Policy version and changes** – document details, drafting note, every `[Trust to confirm]` item collected from the policy, and the change log (Appendix G).
+- **Full policy** (`policy/full.html`) – all 19 sections and 7 appendices with their original numbering on one page. Every section, subsection and appendix is an anchor (`#section-12`, `#s-12-4`, `#appendix-e`), so task pages, cross-references and search results land on the wording they refer to. Document details, the drafting note and the change log (Appendix G) are on this page.
+- **Where to get extra help** (`get-help.html`) – the emergency number, then one table: who to contact, their bleep, and the reasons to contact them.
+- **Search** – client-side search over every policy subsection and task page.
 
 The draft status appears on every page (amber strip) and on every printed page (footer line).
 
@@ -26,7 +27,11 @@ The build fails loudly if a task page can no longer find a paragraph, list or ta
 Two things are not generated from the policy text and need updating by hand if the policy changes:
 
 - The short labels in the three pathways (`src/pages/tasks.mjs`). Each step links to the subsection it summarises.
-- The "Get help" senior-review list, which paraphrases the review thresholds in sections 12.4 to 14.3 with links to each.
+- The reasons to contact on "Where to get extra help" (`src/pages/misc.mjs`). Each reason is a short label for a point in the policy and names the policy wording it stands for; the build fails if that wording is no longer in the section, so the list cannot drift silently.
+
+## Adding bleep numbers
+
+Bleeps are a local decision and are not in the policy. In `src/pages/misc.mjs`, set `bleep` for each entry in `CONTACTS` (for example `bleep: '1234'`) and rebuild. While `bleep` is `null` the page shows `[Trust to confirm: bleep]`. The emergency number is in the same file.
 
 ## Building locally
 
@@ -63,11 +68,12 @@ src/build.mjs                   build script (markdown → docs/, Sass, assets, 
 src/lib/policy.mjs              parses the markdown into sections and subsections
 src/lib/markdown.mjs            renders markdown as NHS design system HTML; helpers to pull out paragraphs, lists, tables
 src/lib/html.mjs                nhsuk component markup and the page shell
-src/lib/site.mjs                URLs and task list
-src/pages/                      hub, task pages, full policy, secondary pages
+src/lib/site.mjs                URLs, and the task list with the situation that leads to each task
+src/pages/                      homepage, task pages, full policy, extra help and search
 src/assets/images/              Trust logos and icons, copied to docs/assets/images/
 src/styles/app.scss             styles (imports nhsuk-frontend)
 src/js/search.js                client-side search
+src/js/app.js                   opens collapsible blocks for deep links and printing
 docs/                           generated site (GitHub Pages)
 ```
 

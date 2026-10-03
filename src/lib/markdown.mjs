@@ -193,26 +193,8 @@ export function createMarkdown({ site, policy }) {
     return md.replace(/\n(> \*\*Not an indication[^\n]*)\n(?=> \*\*Not an indication)/g, '\n$1\n>\n')
   }
 
-  function markToConfirm(html, ctx = {}) {
-    // Plain text of the whole fragment (minus stacked-table column labels),
-    // used to give each marker some context
-    const plain = stripTags(html.replace(/<span class="nhsuk-table__heading"[^>]*>[^<]*<\/span>/g, ''))
-    return processText(html, (t) =>
-      t.replace(TO_CONFIRM_RE, (m, inner) => {
-        if (ctx.collect) {
-          const text = stripTags(inner)
-          const at = plain.indexOf(`[${text}]`)
-          const before = at > 0 ? plain.slice(Math.max(0, at - 110), at).replace(/^\S*\s/, '') : ''
-          ctx.collect({
-            text,
-            snippet: (before ? `…${before}` : '') + `[${text}]`,
-            context: ctx.context || '',
-            url: ctx.anchorUrl || ''
-          })
-        }
-        return `<mark class="app-to-confirm">[${inner}]</mark>`
-      })
-    )
+  function markToConfirm(html) {
+    return processText(html, (t) => t.replace(TO_CONFIRM_RE, (m, inner) => `<mark class="app-to-confirm">[${inner}]</mark>`))
   }
 
   function sectionUrl(num) {
@@ -251,20 +233,20 @@ export function createMarkdown({ site, policy }) {
   /**
    * Render a markdown fragment.
    * options: { pageUrl, taskList: 'checkbox'|'list', tableMode: 'responsive'|'scroll',
-   *            idPrefix, headingShift, collect, context, anchorUrl, calloutLevel }
+   *            idPrefix, headingShift, calloutLevel }
    */
   function render(md, options = {}) {
     opts = { ...options }
     counter = 0
     let html = marked.parse(preprocess(md))
-    html = markToConfirm(html, options)
+    html = markToConfirm(html)
     if (options.pageUrl) html = linkCrossRefs(html, options.pageUrl)
     return html
   }
 
   function renderInline(md, options = {}) {
     let html = marked.parseInline(md)
-    html = markToConfirm(html, options)
+    html = markToConfirm(html)
     if (options.pageUrl) html = linkCrossRefs(html, options.pageUrl)
     return html
   }

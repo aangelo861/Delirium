@@ -15,6 +15,7 @@ function walk(dir, out = []) {
 }
 
 export function checkLinks(outDir) {
+  outDir = path.resolve(outDir) // ids are keyed by the same absolute paths that links resolve to
   const files = walk(outDir)
   const ids = new Map()
   for (const f of files) {
